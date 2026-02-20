@@ -1,6 +1,7 @@
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
-def PROMPT(pergunta, contexto):
-    BASE_PROMPT = f"""
+
+PROMPT = SystemMessage(f"""
         Você é um analista de estoque especializado na análise de desempenho de lojas.
 
     Regras:
@@ -14,16 +15,14 @@ def PROMPT(pergunta, contexto):
     - Apresente um resumo claro do cenário.
     - Destaque riscos, padrões ou pontos que merecem atenção.
     - Justifique suas conclusões com base nos dados do contexto.
-    - Seja objetivo, estratégico e profissional.
+    - Seja objetivo, estratégico e profissional.""")
 
-    CONTEXTO:
-    {contexto}
+def message(pergunta, contexto):
 
-    PERGUNTA:
-    {pergunta}
+    return HumanMessage(content=f"""
+        CONTEXTO:
+        {contexto}
 
-
-
-    """
-
-    return BASE_PROMPT
+        PERGUNTA:
+        {pergunta}
+        """)

@@ -2,13 +2,15 @@ from langchain_ollama import ChatOllama
 from langchain_chroma.vectorstores import Chroma
 from langchain_ollama import OllamaEmbeddings
 from pathlib import Path
-from prompt import PROMPT
+from prompt import PROMPT, message
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+
 
 class Rag:
     def __init__(self, model_name,model_retriver, path_db, collection, type_question, K ):
         self.llm = ChatOllama(model=model_name)
         self.embedding = OllamaEmbeddings(model=model_retriver)
-        self.vectorstore = vectorstore = Chroma(
+        self.vectorstore  = Chroma(
             persist_directory=path_db, 
             collection_name=collection, 
             embedding_function=self.embedding  
@@ -18,12 +20,9 @@ class Rag:
             search_type= type_question,       
             search_kwargs={"k": K}          
         )
+        self.chat_history = []
 
 
-    def generate(self,prompt):
-        
-        response =  self.llm.invoke(prompt)
-        return response.content
     
 
     def Pretriever(self, question) -> str:
@@ -32,9 +31,9 @@ class Rag:
     
     def context_builder(self,docs):
 
-        context = "" #Aqui é o contexto da IA que sera gerados pelo retriver
+        context = "" 
 
-        for i, doc in enumerate(docs, start=1): # pega os documentos do retriver
+        for i, doc in enumerate(docs, start=1): 
             context +=f'''
 
         [DOC {i}]
@@ -53,20 +52,28 @@ class Rag:
     '''
             
         return context
+    
+    def greeting(self):
+        greeting = AIMessage(content="Olá! Sou seu analista de estoque. Como posso ajudar você hoje?")
+        self.chat_history.append(greeting)
+        return greeting.content
 
 
 
-    def run(self,pergunta):
-
-        docs = self.Pretriever(pergunta)
+    def run(self,ask):
+                
+        docs = self.Pretriever(ask)
 
         context = self.context_builder(docs)
 
-        prompt = PROMPT(pergunta, context)
+        user_message = message(ask, context)
 
-        llm = self.generate(prompt)
+        msg = [PROMPT] + self.chat_history + [user_message] 
 
-        return llm
+        response = self.llm.invoke(msg)
+
+
+        return response.content
 
       
 

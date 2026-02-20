@@ -14,9 +14,12 @@ rag = Rag(
     K= 3
 )
 
+print(rag.greeting())
+
+
 while True: 
 
-    pergunta = input("Qual a sua pergunta hoje ?")
+    pergunta = input()
 
     run = rag.run(pergunta)
 

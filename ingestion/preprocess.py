@@ -10,7 +10,6 @@ conn = sqlite3.connect(db_path)
 
 query = f"SELECT * FROM vendas_lojas;"
 
-
 df = pd.read_sql_query(query, conn)
 
 
